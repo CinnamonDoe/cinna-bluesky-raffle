@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
 @theme inline {
   --color-background: var(--background);
@@ -12,15 +8,75 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: conic-gradient(at 100%, #dceef1,#bcdfe6, #ffffff, #bcdfe6);
+    --button-color: #bcdfe6;
+    --foreground: #5a6599;
   }
 }
 
-body {
-  background: var(--background);
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: conic-gradient(at 100%, #000000, #141616, #000000);
+    --input-text: #262929;
+    --fallback: #141616;
+    --button-color: #000000;
+    --foreground: #dceef1;
+  }
+}
+
+:root {
+  background-color: var(--fallback);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  height: 100vh;
+  background-image: var(--background);
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+  padding-bottom: 10px;
+}
+
+.winner-img {
+  border: 2px solid var(--foreground);
+}
+
+.post-input {
+  background-color: var(--input-text);
+}
+
+.post-input {
+  background-color: var(--input-text);
+}
+
+.post-input:focus {
+  border: #ffffff;
+}
+
+.choose-winner {
+  background-color: var(--button-color);
+
+}
+
+@media (max-width: 370px) {
+  .winner-form {
+    align-self: center;
+  }
+
+  .choose-winner {
+    border-radius: 5px;
+    align-self: center;
+    position: relative;
+  }
+
+  .post-input {
+    border-radius: 5px;
+  }
 }

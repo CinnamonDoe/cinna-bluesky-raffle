@@ -1,101 +1,69 @@
-import Image from "next/image";
+'use client'
+import { AtpAgent } from "@atproto/api";
+import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import { FormEvent, useState } from "react";
+import "./styles.css"
+import Winner from "./components/Winner";
+
+import { FaGithub } from "react-icons/fa";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [reposts, setReposts] = useState<ProfileView[]>([]);
+  const [winner, setWinner] = useState<ProfileView>();
+  const [triggered, setTriggered] = useState(false);
+  const [post, setPost] = useState("");
+  const agent = new AtpAgent({
+    service: "https://api.bsky.app"
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
+  const parseBskyPost = (): string[] => {
+    if(post === ""){
+      console.info("You must put in a post from bluesky!");
+    }
+    return post.split("/");
+  }
+
+  const selectWinner = async (e: FormEvent) => {
+    e.preventDefault();
+    if(post === ""){
+      console.info("You must put in a post from bluesky!");
+    }
+    const postUrl = parseBskyPost();
+    const did = (await agent.com.atproto.identity.resolveHandle({handle: postUrl[4]})).data.did;
+    agent.app.bsky.feed.getRepostedBy({uri: `at://${did}/app.bsky.feed.post/${postUrl[6]}`}).then((res) => setReposts(res.data.repostedBy))
+    if(reposts.length == 0){
+      console.info("There are no reposts on this post!");
+    }
+    const randomIndex = Math.floor(Math.random() * reposts.length);
+    setWinner(reposts[randomIndex]);
+    setTriggered(true)
+    setTimeout(() => {
+      setTriggered(false)
+    }, 1500);
+  }
+
+
+  return (
+    <div className="flex flex-col items-center justify-items-center p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col justify-items-center gap-8 row-start-2 items-center sm:items-start">
+      <h1 className="text-center text-3xl font-bold">Choose your Winner!</h1>
+      <section>
+          {winner !== undefined ? <Winner avatar={winner.avatar!} displayName={winner.displayName!} handle={winner.handle} triggered={triggered}/>
+              : 
+              <h2>There is no winner yet.</h2>}
+        </section>
+        <form onSubmit={selectWinner} className="winner-form self-center">
+          <input className="post-input h-10 rounded-l-md" type="text" name="" id="" placeholder="Your raffle's post" onChange={(e) => setPost(e.target.value)}/>
+          <button className="choose-winner [400px]:justify-self-center p-2 rounded-r-md transition delay-75 duration-200 ease-in-out hover:bg-linear-to-r from-cyan-500 to-pink-400 text-white">Submit</button>
+        </form>
+        <a style={{display: winner ? "block":"none"}} className="p-3 bg-linear-0 from-sky-700 to-cyan-500 rounded-lg self-center text-white" href={`https://bsky.app/intent/compose?text=The%20winner%20of%20the%20giveaway%20is%20${winner?.handle}!%20Congratulations!`} target="_blank">Announce</a>
+        <footer className="absolute bottom-0 pb-4 self-center ">
+          <a href="https://github.com/CinnamonDoe" target="_blank" className="flex align-middle items-center">
+            <h2 className="mr-2">Made and Maintained by @CinnamonDoe on</h2>
+            <FaGithub className="ml-2.5 space-x-1"/>
           </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        </footer>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
