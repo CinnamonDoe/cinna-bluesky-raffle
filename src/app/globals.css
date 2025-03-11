@@ -65,9 +65,18 @@ body {
 
 }
 
+.filter-options {
+  border: 1px solid;
+}
+
 @media (max-width: 370px) {
   .winner-form {
+    display: flex;
+    flex-direction: column;
     align-self: center;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
   }
 
   .choose-winner {
@@ -78,5 +87,9 @@ body {
 
   .post-input {
     border-radius: 5px;
+  }
+
+  .winners-modal {
+    background-color: var(--fallback);
   }
 }
