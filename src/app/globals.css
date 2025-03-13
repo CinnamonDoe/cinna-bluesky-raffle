@@ -12,6 +12,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     --background: conic-gradient(at 100%, #dceef1,#bcdfe6, #ffffff, #bcdfe6);
+    --input-text: #dceef1;
     --button-color: #bcdfe6;
     --foreground: #5a6599;
   }
@@ -89,7 +90,4 @@ body {
     border-radius: 5px;
   }
 
-  .winners-modal {
-    background-color: var(--fallback);
-  }
 }
